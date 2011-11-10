@@ -40,20 +40,28 @@
         text-align: right;
       }
       #bookmarks li {
-        padding: 5px;
         border-top: 1px #ccc solid;
+        padding: 5px;
+        position: relative;
+      }
+      #bookmarks li:hover {
+        background-color: #eee;
       }
       #bookmarks .desc {
-        width: 100%;
+        background-color: transparent;
         border: 0;
         color: #999;
-        display: inline-block;
-        margin: 0 0 0 10px;
+        display: block;
+        margin: 0;
+        width: 100%;
       }
       #bookmarks .trash {
         display: none;
-        font-size: 80%;
         float: right;
+        font-size: 80%;
+        position: absolute;
+        right: 10px;
+        top: 10px;
       }
       #bookmarks li:hover .trash {
         display: inline-block;
