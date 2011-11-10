@@ -5,7 +5,10 @@ import os
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+if os.environ.has_key('DATABASE_URL'):
+  app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+else:
+  app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookmarks.db'
 db = SQLAlchemy(app)
 
 
