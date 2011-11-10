@@ -17,7 +17,7 @@ class Bookmark(db.Model):
   url = db.Column(db.String(255))
   title = db.Column(db.String(255))
   desc = db.Column(db.String(255))
-  status = db.Column(db.Enum('ACTIVE', 'TRASHED'))
+  status = db.Column(db.Enum('ACTIVE', 'TRASHED', name='bookmark_status'))
 
   def __init__(self, url, title, desc):
     self.url = url
