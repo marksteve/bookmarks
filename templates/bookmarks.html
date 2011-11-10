@@ -199,20 +199,24 @@
             // `serializeArray` produces a list of objects with name-value keys
             // We need a JSON representation of our model so we create it
             // from what we get from `serializeArray`
-            var bookmark = {};
-            _.each(this.el.serializeArray(), function(x) {
+            var bookmark = {},
+                $el = $(this.el);
+            _.each($el.serializeArray(), function(x) {
               if (x.name) {
                 bookmark[x.name] = x.value;
               }
             });
             // Add it to the Bookmarks collection we instantialized in the Bookmark List View
-            bookmarkList.bookmarks.create(bookmark);
+            bookmarkList.bookmarks.create(bookmark, {success: function() {
+              // Reset form
+              $('input, textarea', $el).not('[type="submit"]').val('');
+            }});
             // Return false to prevent the submit event from bubbling
             return false;
           }
         });
         // Instantialize Bookmark Form View
-        var bookmarkForm = new BookmarkForm({el: $('form')});
+        var bookmarkForm = new BookmarkForm({el: 'form'});
       })(Zepto);
     </script>
   </body>
