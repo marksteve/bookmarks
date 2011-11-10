@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bookmarks</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/zepto/0.7/zepto.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.2.1/underscore-min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
+    <style>
+      body, input, textarea {
+        font: 14px/1.2em Helvetica, Arial, sans-serif;
+      }
+      input, textarea {
+        display: block;
+        margin-bottom: 1em;
+      }
+      #bookmark-form {
+        background-color: #eee;
+        padding: 10px  20px;
+        width: 200px;
+        position: fixed;
+        right: 0;
+        top: 0;
+      }
+      #bookmark-form input,
+      #bookmark-form textarea {
+        padding: 5px 5%;
+        width: 90%;
+      }
+      #bookmark-form input[type="submit"] {
+        font-size: 21px;
+        width: 100%;
+      }
+      #bookmarks {
+        margin: 0 240px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      #bookmarks .empty {
+        color: #999;
+        text-align: right;
+      }
+      #bookmarks li {
+        padding: 5px;
+        border-top: 1px #ccc solid;
+      }
+      #bookmarks .desc {
+        border: 0;
+        color: #999;
+        display: inline-block;
+        margin: 0 0 0 10px;
+      }
+      #bookmarks .trash {
+        display: none;
+        font-size: 80%;
+        float: right;
+      }
+      #bookmarks li:hover .trash {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bookmark-form">
+      <h2>Add Bookmark</h2>
+      <form action="/bookmarks" method="post">
+        <input type="text" name="title" placeholder="title">
+        <input type="url" name="url" placeholder="url">
+        <textarea name="desc" placeholder="description"></textarea>
+        <input type="submit" value="Bookmark!">
+      </form>
+    </div>
+    <h2>Bookmarks</h2>
+    <ul id="bookmarks"></ul>
+    <script>
+      (function($) {
+        window.Bookmark = Backbone.Model.extend({
+          url: function() {
+            return '/bookmarks' + (this.get('id') ? '/' + this.get('id') : '');
+          }
+        });
+        window.Bookmarks = Backbone.Collection.extend({
+          model: Bookmark,
+          url: '/bookmarks',
+          comparator: function(model) {
+            return model.get('title');
+          }
+        });
+        window.BookmarkLi = Backbone.View.extend({
+          tagName: 'li',
+          events: {
+            'change .desc': 'save',
+            'click .trash': 'destroy'
+          },
+          render: function() {
+            var data = this.model.toJSON();
+            $(this.el).html(
+              $('<a href="' + data.url + '">' + data.title + '</a>' +
+                '<input type="text" class="desc" value="' + data.desc + '">' +
+                '<a href="#" class="trash">Trash</a>'
+                )
+            );
+            return this;
+          },
+          save: function(e) {
+            this.model.save({desc: $(e.target).val()});
+          },
+          destroy: function(e) {
+            this.model.destroy({success: function(model) {
+              $(model.view.el).remove();
+            }});
+          }
+        });
+        window.BookmarkList = Backbone.View.extend({
+          initialize: function() {
+            _.bindAll(this, 'add', 'reset', 'checkBlankState');
+            this.bookmarks = new Bookmarks;
+            this.bookmarks.bind('add', this.add);
+            this.bookmarks.bind('reset', this.reset);
+            this.bookmarks.bind('add', this.checkBlankState);
+            this.bookmarks.bind('remove', this.checkBlankState);
+            this.bookmarks.bind('reset', this.checkBlankState);
+          },
+          add: function(model) {
+            model.view = new BookmarkLi({model: model});
+            $(this.el).append(model.view.render().el);
+          },
+          reset: function(collection) {
+            var $el = $(this.el);
+            $el.empty();
+            collection.each(this.add);
+          },
+          checkBlankState: function(modelOrCollection) {
+            var $el = $(this.el),
+                collection = modelOrCollection.collection || modelOrCollection;
+            if (collection.length == 0) {
+              $el.append('<li class="empty">Don\'t be shy! Bookmark now. &rarr;</li>');
+            } else {
+              $('.empty', $el).remove();
+            }
+          }
+        });
+        var bookmarkList = new BookmarkList({el: '#bookmarks'});
+        bookmarkList.bookmarks.fetch();
+        window.BookmarkForm = Backbone.View.extend({
+          events: {
+            'submit': 'create'
+          },
+          create: function() {
+            var bookmark = {};
+            _.each(this.el.serializeArray(), function(x) {bookmark[x.name] = x.value});
+            bookmarkList.bookmarks.create(bookmark);
+            return false;
+          }
+        });
+        var bookmarkForm = new BookmarkForm({el: $('form')});
+        $
+      })(Zepto);
+    </script>
+  </body>
+</html>
+
