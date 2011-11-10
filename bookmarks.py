@@ -1,6 +1,7 @@
 from flask import request, render_template, abort, Flask
 from flaskext.sqlalchemy import SQLAlchemy
 import json
+import os
 
 
 app = Flask(__name__)
@@ -71,4 +72,5 @@ def reset():
 
 
 if __name__ == '__main__':
-  app.run(debug=True)
+  port = int(os.environ.get('PORT', 5000))
+  app.run(host='0.0.0.0', port=port)
