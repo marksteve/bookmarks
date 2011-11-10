@@ -1,7 +1,7 @@
 Bookmarks
 =========
 
-Example bookmarking app using Flask and GitHub
+Example bookmarking app using Flask and Backbone.js
 
 Run:
 
